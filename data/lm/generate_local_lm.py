@@ -11,7 +11,7 @@ from urllib import request
 def main():
 
   with tempfile.TemporaryDirectory() as tmp:
-    data_upper = '/content/DeepSpeech-Indo/data/lm/filtered_output.txt'
+    data_upper = '/content/DeepSpeech-Indo/data/lm/filtered_output'
     
 
     # Convert to lowercase and count word occurences.
@@ -29,7 +29,7 @@ def main():
     lm_path = '/content/DeepSpeech-Indo/data/lm/lm.arpa'
     print('Creating ARPA file...')
     subprocess.check_call([
-      '/content/kenlm/bin/lmplz', '--order', '5',
+      '/content/bin/lmplz', '--order', '5',
                '--temp_prefix', tmp,
                '--memory', '50%',
                '--text', data_lower,
@@ -45,12 +45,12 @@ def main():
     # Filter LM using vocabulary of top 500k words
     print('Filtering ARPA file...')
     filtered_path = os.path.join(tmp, 'lm_filtered.arpa')
-    subprocess.run(['/content/kenlm/bin/filter', 'single', 'model:{}'.format(lm_path), filtered_path], input=vocab_str.encode('utf-8'), check=True)
+    subprocess.run(['/content/bin/filter', 'single', 'model:{}'.format(lm_path), filtered_path], input=vocab_str.encode('utf-8'), check=True)
 
     # Quantize and produce trie binary.
     print('Building lm.binary...')
     subprocess.check_call([
-      '/content/kenlm/bin/build_binary', '-a', '255',
+      '/content/bin/build_binary', '-a', '255',
                       '-q', '8',
                       '-v',
                       'trie',

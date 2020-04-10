@@ -3,6 +3,7 @@ import io
 import os
 import subprocess
 import tempfile
+import bz2
 
 from collections import Counter
 from urllib import request
@@ -10,7 +11,7 @@ from urllib import request
 def main():
 
   with tempfile.TemporaryDirectory() as tmp:
-    data_upper = '/home/loghi/Documents/FYP/DeepSpeech/data/lm/filtered_output'
+    data_upper = '/content/DeepSpeech-Indo/data/lm/filtered_output.txt'
     
 
     # Convert to lowercase and count word occurences.
@@ -25,10 +26,10 @@ def main():
           lower.write(line_lower)
 
     # Build pruned LM.
-    lm_path = '/home/loghi/Documents/FYP/DeepSpeech/data/lm/lm.arpa'
+    lm_path = '/content/DeepSpeech-Indo/data/lm/lm.arpa'
     print('Creating ARPA file...')
     subprocess.check_call([
-      '/home/loghi/Documents/FYP/Datasets/kenlm/build/bin/lmplz', '--order', '5',
+      '/content/kenlm/bin/lmplz', '--order', '5',
                '--temp_prefix', tmp,
                '--memory', '50%',
                '--text', data_lower,
@@ -37,24 +38,24 @@ def main():
     ])
 
     vocab_str = '\n'.join(word for word, count in counter.most_common(1197913))
-    with open('only_tamil_uniq_sorted_words.txt', 'w') as fout:
+    with open('/content/DeepSpeech-Indo/data/lm/vocabulary.txt', 'w') as fout:
      	
       fout.write(vocab_str)
 
     # Filter LM using vocabulary of top 500k words
     print('Filtering ARPA file...')
     filtered_path = os.path.join(tmp, 'lm_filtered.arpa')
-    subprocess.run(['/home/loghi/Documents/FYP/Datasets/kenlm/build/bin/filter', 'single', 'model:{}'.format(lm_path), filtered_path], input=vocab_str.encode('utf-8'), check=True)
+    subprocess.run(['/content/kenlm/bin/filter', 'single', 'model:{}'.format(lm_path), filtered_path], input=vocab_str.encode('utf-8'), check=True)
 
     # Quantize and produce trie binary.
     print('Building lm.binary...')
     subprocess.check_call([
-      '/home/loghi/Documents/FYP/Datasets/kenlm/build/bin/build_binary', '-a', '255',
+      '/content/kenlm/bin/build_binary', '-a', '255',
                       '-q', '8',
                       '-v',
                       'trie',
                       filtered_path,
-                      'lm.binary'
+                      '/content/DeepSpeech-Indo/data/lm/lm.binary'
     ])
 
 if __name__ == '__main__':

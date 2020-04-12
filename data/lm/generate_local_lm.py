@@ -11,7 +11,7 @@ from urllib import request
 def main():
 
   with tempfile.TemporaryDirectory() as tmp:
-    data_upper = '/content/DeepSpeech-Indo/data/lm/filtered_output'
+    data_upper = '/content/DeepSpeech-Indo/data/lm/output'
     
 
     # Convert to lowercase and count word occurences.

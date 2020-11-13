@@ -1,5 +1,5 @@
 # Main training requirements
-tensorflow-gpu == 1.15.2
+tensorflow-gpu == 2.3.1
 numpy 
 progressbar2
 six
